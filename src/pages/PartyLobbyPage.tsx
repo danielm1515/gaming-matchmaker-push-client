@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Crown, LogOut, Trash2, CheckCircle2, Swords, MapPin, MessageSquare } from 'lucide-react';
+import { Crown, LogOut, Trash2, CheckCircle2, Swords, MapPin, MessageSquare, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../stores/authStore';
 import { useChatStore } from '../stores/chatStore';
@@ -99,21 +99,23 @@ export default function PartyLobbyPage() {
     );
   }
 
+  const [chatOpen, setChatOpen] = useState(false);
+
   const slots = Array.from({ length: party.max_size }).map((_, i) => party.members[i]);
 
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col">
       <Navbar />
 
-      <div className="flex-1 flex overflow-hidden" style={{ height: 'calc(100vh - 56px)' }}>
+      <div className="flex-1 flex overflow-hidden relative" style={{ height: 'calc(100vh - 56px)' }}>
         {/* Left: Party info */}
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-6">
           {/* Header */}
-          <div className="flex items-start justify-between gap-4">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div className="min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <Swords size={20} className="text-accent-primary" />
-                <h1 className="font-display text-2xl font-bold text-text-primary">
+                <Swords size={20} className="text-accent-primary shrink-0" />
+                <h1 className="font-display text-xl sm:text-2xl font-bold text-text-primary truncate">
                   {party.name || `${party.game.name} Party`}
                 </h1>
               </div>
@@ -178,6 +180,16 @@ export default function PartyLobbyPage() {
                     <LogOut size={14} /> Leave
                   </Button>
                 )}
+
+                {/* Mobile chat toggle */}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="lg:hidden"
+                  onClick={() => setChatOpen(true)}
+                >
+                  <MessageSquare size={14} /> Chat
+                </Button>
               </div>
             )}
           </div>
@@ -250,13 +262,34 @@ export default function PartyLobbyPage() {
           </div>
         </div>
 
-        {/* Right: Chat */}
-        <div className="w-80 xl:w-96 shrink-0 border-l border-bg-border overflow-hidden">
+        {/* Desktop chat sidebar */}
+        <div className="hidden lg:block w-80 xl:w-96 shrink-0 border-l border-bg-border overflow-hidden">
           <ChatPanel
             currentPlayerId={player?.id ?? ''}
             onSend={sendMessage}
           />
         </div>
+
+        {/* Mobile chat overlay */}
+        {chatOpen && (
+          <div className="lg:hidden absolute inset-0 z-50 flex flex-col bg-bg-secondary">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-bg-border">
+              <span className="font-display font-semibold text-text-primary">Party Chat</span>
+              <button
+                onClick={() => setChatOpen(false)}
+                className="p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-bg-elevated transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <ChatPanel
+                currentPlayerId={player?.id ?? ''}
+                onSend={sendMessage}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

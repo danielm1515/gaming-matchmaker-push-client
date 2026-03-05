@@ -19,6 +19,7 @@ export default function PartyLobbyPage() {
   const navigate = useNavigate();
   const { player, token } = useAuthStore();
   const { setMessages, clearChat } = useChatStore();
+  const [chatOpen, setChatOpen] = useState(false);
 
   const { data: party, isLoading, refetch } = useQuery({
     queryKey: ['party', partyId],
@@ -98,8 +99,6 @@ export default function PartyLobbyPage() {
       </div>
     );
   }
-
-  const [chatOpen, setChatOpen] = useState(false);
 
   const slots = Array.from({ length: party.max_size }).map((_, i) => party.members[i]);
 

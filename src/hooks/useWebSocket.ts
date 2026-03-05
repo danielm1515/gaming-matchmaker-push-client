@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useChatStore } from '../stores/chatStore';
 import type { Message } from '../types/domain';
 
-const WS_BASE = 'ws://localhost:8000/api';
+const WS_BASE = 'ws://gaming-matchmaker-push.onrender.com/api';
 
 export function useWebSocket(partyId: string | null, token: string | null) {
   const wsRef = useRef<WebSocket | null>(null);

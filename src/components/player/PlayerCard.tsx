@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { MapPin, Clock } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import type { Player } from '../../types/domain';
 import PlayerAvatar from './PlayerAvatar';
 import SkillBadge from './SkillBadge';

@@ -1,9 +1,7 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Gamepad2, Users, Search, LogOut, User } from 'lucide-react';
+import { Gamepad2, Users, Search, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import PlayerAvatar from '../player/PlayerAvatar';
-import { partiesApi } from '../../api/parties';
-import { useQuery } from '@tanstack/react-query';
 
 const AVAILABILITY_COLORS = {
   ONLINE: 'bg-green-400',

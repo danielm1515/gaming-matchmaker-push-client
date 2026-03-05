@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Crown, LogOut, Trash2, CheckCircle2, Swords, MapPin, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../stores/authStore';
@@ -17,7 +17,6 @@ import Spinner from '../components/ui/Spinner';
 export default function PartyLobbyPage() {
   const { partyId } = useParams<{ partyId: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { player, token } = useAuthStore();
   const { setMessages, clearChat } = useChatStore();
 

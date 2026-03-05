@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Zap, Users, Search, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -26,8 +26,6 @@ const AVAILABILITY_OPTIONS: { value: AvailabilityStatus; label: string; color: s
 export default function DashboardPage() {
   const { player, updatePlayer } = useAuthStore();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const [matches, setMatches] = useState<any[]>([]);
   const [isFinding, setIsFinding] = useState(false);

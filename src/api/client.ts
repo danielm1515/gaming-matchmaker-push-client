@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const apiClient = axios.create({
-  baseURL: 'http://gaming-matchmaker-push.onrender.com/api',
+  baseURL: 'https://gaming-matchmaker-push.onrender.com/api',
   headers: { 'Content-Type': 'application/json' },
 });
 

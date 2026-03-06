@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Player } from '../../types/domain';
 import PlayerAvatar from './PlayerAvatar';
 import SkillBadge from './SkillBadge';
@@ -12,21 +13,14 @@ const AVAILABILITY_DOT: Record<string, string> = {
   OFFLINE: 'bg-text-muted',
 };
 
-const AVAILABILITY_LABEL: Record<string, string> = {
-  ONLINE: 'Online',
-  LOOKING_FOR_PARTY: 'Looking for party',
-  IN_GAME: 'In game',
-  AWAY: 'Away',
-  OFFLINE: 'Offline',
-};
-
 interface PlayerCardProps {
   player: Player;
   onAction?: (player: Player) => void;
   actionLabel?: string;
 }
 
-export default function PlayerCard({ player, onAction, actionLabel = 'Invite' }: PlayerCardProps) {
+export default function PlayerCard({ player, onAction, actionLabel }: PlayerCardProps) {
+  const { t } = useTranslation();
   return (
     <motion.div
       whileHover={{ y: -3 }}
@@ -48,7 +42,7 @@ export default function PlayerCard({ player, onAction, actionLabel = 'Invite' }:
           </div>
           <div className="flex items-center gap-1 text-xs text-text-muted mt-0.5">
             <span className={`w-1.5 h-1.5 rounded-full ${AVAILABILITY_DOT[player.availability]}`} />
-            {AVAILABILITY_LABEL[player.availability]}
+            {t(`availability.${player.availability}`)}
           </div>
         </div>
       </div>
@@ -87,7 +81,7 @@ export default function PlayerCard({ player, onAction, actionLabel = 'Invite' }:
           onClick={() => onAction(player)}
           className="mt-auto w-full py-1.5 rounded-lg text-sm font-medium text-accent-primary border border-accent-primary/30 hover:bg-accent-primary/10 transition-colors"
         >
-          {actionLabel}
+          {actionLabel ?? t('player.invite')}
         </button>
       )}
     </motion.div>

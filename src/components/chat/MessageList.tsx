@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Message } from '../../types/domain';
 import MessageBubble from './MessageBubble';
 
@@ -8,6 +9,7 @@ interface MessageListProps {
 }
 
 export default function MessageList({ messages, currentPlayerId }: MessageListProps) {
+  const { t } = useTranslation();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -17,7 +19,7 @@ export default function MessageList({ messages, currentPlayerId }: MessageListPr
   if (messages.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-sm text-text-muted">No messages yet. Say hello!</p>
+        <p className="text-sm text-text-muted">{t('chat.noMessages')}</p>
       </div>
     );
   }

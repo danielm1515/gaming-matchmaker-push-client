@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { gamesApi } from '../../api/games';
 import type { Game } from '../../types/domain';
 import Spinner from '../ui/Spinner';
@@ -9,7 +10,8 @@ interface GameSelectorProps {
   placeholder?: string;
 }
 
-export default function GameSelector({ value, onChange, placeholder = 'All Games' }: GameSelectorProps) {
+export default function GameSelector({ value, onChange, placeholder }: GameSelectorProps) {
+  const { t } = useTranslation();
   const { data: games, isLoading } = useQuery({
     queryKey: ['games'],
     queryFn: gamesApi.getGames,
@@ -28,7 +30,7 @@ export default function GameSelector({ value, onChange, placeholder = 'All Games
             : 'border-bg-border text-text-secondary hover:border-accent-primary/30 hover:text-text-primary'
         }`}
       >
-        {placeholder}
+        {placeholder ?? t('filters.allGames')}
       </button>
       {games?.map((game: Game) => (
         <button

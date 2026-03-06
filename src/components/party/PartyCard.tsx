@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Users, MapPin, Swords, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import type { Party } from '../../types/domain';
 import SkillBadge from '../player/SkillBadge';
 import PlayerAvatar from '../player/PlayerAvatar';
@@ -25,6 +26,7 @@ const STATUS_COLOR: Record<string, 'green' | 'red' | 'yellow' | 'grey'> = {
 };
 
 export default function PartyCard({ party, onJoin, onDelete, currentPlayerId, matchScore, isJoining, isDeleting }: PartyCardProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const currentSize = party.members.length;
   const isFull = currentSize >= party.max_size;
@@ -41,7 +43,7 @@ export default function PartyCard({ party, onJoin, onDelete, currentPlayerId, ma
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-display font-semibold text-text-primary">
-              {party.name || `${party.game.name} Party`}
+              {party.name || `${party.game.name} ${t('partyCard.party')}`}
             </span>
             <Badge color={STATUS_COLOR[party.status]}>{party.status}</Badge>
           </div>
@@ -52,7 +54,7 @@ export default function PartyCard({ party, onJoin, onDelete, currentPlayerId, ma
         </div>
         {matchScore !== undefined && (
           <span className="text-xs font-bold text-accent-success bg-accent-success/10 border border-accent-success/30 px-2 py-0.5 rounded-full shrink-0">
-            {matchScore}% match
+            {matchScore}{t('partyCard.match')}
           </span>
         )}
       </div>
@@ -98,7 +100,7 @@ export default function PartyCard({ party, onJoin, onDelete, currentPlayerId, ma
           className="flex-1"
           onClick={() => navigate(`/parties/${party.id}`)}
         >
-          View
+          {t('partyCard.view')}
         </Button>
         {onJoin && !isFull && !isMyParty && (
           <Button
@@ -108,7 +110,7 @@ export default function PartyCard({ party, onJoin, onDelete, currentPlayerId, ma
             onClick={() => onJoin(party.id)}
             loading={isJoining}
           >
-            Join
+            {t('partyCard.join')}
           </Button>
         )}
         {onDelete && isMyParty && (
@@ -116,10 +118,10 @@ export default function PartyCard({ party, onJoin, onDelete, currentPlayerId, ma
             variant="danger"
             size="sm"
             className="flex-1"
-            onClick={() => { if (confirm('Delete this party?')) onDelete(party.id); }}
+            onClick={() => { if (confirm(t('partyCard.deleteConfirm'))) onDelete(party.id); }}
             loading={isDeleting}
           >
-            <Trash2 size={13} /> Delete
+            <Trash2 size={13} /> {t('partyCard.delete')}
           </Button>
         )}
       </div>

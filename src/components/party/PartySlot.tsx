@@ -1,5 +1,6 @@
 import { Plus, CheckCircle2, Crown, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import type { PartyMember } from '../../types/domain';
 import PlayerAvatar from '../player/PlayerAvatar';
 import SkillBadge from '../player/SkillBadge';
@@ -13,6 +14,8 @@ interface PartySlotProps {
 }
 
 export default function PartySlot({ member, isLeader, index, canKick, onKick }: PartySlotProps) {
+  const { t } = useTranslation();
+
   if (!member) {
     return (
       <motion.div
@@ -24,7 +27,7 @@ export default function PartySlot({ member, isLeader, index, canKick, onKick }: 
         <div className="w-10 h-10 rounded-full border-2 border-dashed border-bg-border flex items-center justify-center">
           <Plus size={16} />
         </div>
-        <span className="text-sm">Open Slot</span>
+        <span className="text-sm">{t('partySlot.openSlot')}</span>
       </motion.div>
     );
   }
@@ -62,7 +65,7 @@ export default function PartySlot({ member, isLeader, index, canKick, onKick }: 
       {canKick && !isLeader && (
         <button
           onClick={onKick}
-          title="Kick player"
+          title={t('partySlot.kickPlayer')}
           className="shrink-0 p-1 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-400/10 transition-colors"
         >
           <X size={15} />

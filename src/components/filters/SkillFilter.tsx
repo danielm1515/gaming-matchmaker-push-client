@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { SkillLevel } from '../../types/domain';
 import SkillBadge from '../player/SkillBadge';
 
@@ -9,6 +10,7 @@ interface SkillFilterProps {
 }
 
 export default function SkillFilter({ value, onChange }: SkillFilterProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap gap-2">
       <button
@@ -19,7 +21,7 @@ export default function SkillFilter({ value, onChange }: SkillFilterProps) {
             : 'border-bg-border text-text-secondary hover:border-accent-primary/30'
         }`}
       >
-        All
+        {t('filters.all')}
       </button>
       {SKILLS.map((skill) => (
         <button

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Crown, LogOut, Trash2, CheckCircle2, Swords, MapPin, MessageSquare, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import { useChatStore } from '../stores/chatStore';
 import { partiesApi } from '../api/parties';
@@ -15,6 +16,7 @@ import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
 
 export default function PartyLobbyPage() {
+  const { t } = useTranslation();
   const { partyId } = useParams<{ partyId: string }>();
   const navigate = useNavigate();
   const { player, token } = useAuthStore();
@@ -28,14 +30,12 @@ export default function PartyLobbyPage() {
     enabled: !!partyId,
   });
 
-  // Load chat history
   useEffect(() => {
     if (!partyId) return;
     partiesApi.getMessages(partyId).then(setMessages).catch(() => {});
     return () => clearChat();
   }, [partyId]);
 
-  // WebSocket for real-time chat
   const { sendMessage } = useWebSocket(partyId ?? null, token);
 
   const isLeader = party?.leader.id === player?.id;
@@ -45,19 +45,19 @@ export default function PartyLobbyPage() {
   const leaveMutation = useMutation({
     mutationFn: () => partiesApi.leaveParty(partyId!),
     onSuccess: () => {
-      toast.success('Left the party');
+      toast.success(t('lobby.leftParty'));
       navigate('/parties');
     },
-    onError: (err: any) => toast.error(err?.response?.data?.detail ?? 'Failed to leave'),
+    onError: (err: any) => toast.error(err?.response?.data?.detail ?? t('lobby.failedToLeave')),
   });
 
   const disbandMutation = useMutation({
     mutationFn: () => partiesApi.disbandParty(partyId!),
     onSuccess: () => {
-      toast.success('Party disbanded');
+      toast.success(t('lobby.partyDisbanded'));
       navigate('/parties');
     },
-    onError: (err: any) => toast.error(err?.response?.data?.detail ?? 'Failed to disband'),
+    onError: (err: any) => toast.error(err?.response?.data?.detail ?? t('lobby.failedToDisband')),
   });
 
   const readyMutation = useMutation({
@@ -67,8 +67,8 @@ export default function PartyLobbyPage() {
 
   const kickMutation = useMutation({
     mutationFn: (playerId: string) => partiesApi.kickMember(partyId!, playerId),
-    onSuccess: () => { refetch(); toast.success('Player kicked'); },
-    onError: (err: any) => toast.error(err?.response?.data?.detail ?? 'Failed to kick'),
+    onSuccess: () => { refetch(); toast.success(t('lobby.playerKicked')); },
+    onError: (err: any) => toast.error(err?.response?.data?.detail ?? t('lobby.failedToKick')),
   });
 
   const { data: discordChannel, refetch: refetchDiscord } = useQuery({
@@ -79,8 +79,8 @@ export default function PartyLobbyPage() {
 
   const createDiscordMutation = useMutation({
     mutationFn: () => partiesApi.createDiscordChannel(partyId!),
-    onSuccess: () => { refetchDiscord(); toast.success('Discord channel created!'); },
-    onError: (err: any) => toast.error(err?.response?.data?.detail ?? 'Failed to create Discord channel'),
+    onSuccess: () => { refetchDiscord(); toast.success(t('lobby.discordCreated')); },
+    onError: (err: any) => toast.error(err?.response?.data?.detail ?? t('lobby.failedDiscord')),
   });
 
   if (isLoading) {
@@ -94,8 +94,8 @@ export default function PartyLobbyPage() {
   if (!party) {
     return (
       <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center gap-4">
-        <p className="text-text-secondary">Party not found.</p>
-        <Button variant="primary" onClick={() => navigate('/parties')}>Back to Parties</Button>
+        <p className="text-text-secondary">{t('lobby.partyNotFound')}</p>
+        <Button variant="primary" onClick={() => navigate('/parties')}>{t('lobby.backToParties')}</Button>
       </div>
     );
   }
@@ -115,7 +115,7 @@ export default function PartyLobbyPage() {
               <div className="flex items-center gap-2 mb-1">
                 <Swords size={20} className="text-accent-primary shrink-0" />
                 <h1 className="font-display text-xl sm:text-2xl font-bold text-text-primary truncate">
-                  {party.name || `${party.game.name} Party`}
+                  {party.name || `${party.game.name} ${t('lobby.party')}`}
                 </h1>
               </div>
               <div className="flex items-center gap-3 text-sm text-text-secondary flex-wrap">
@@ -138,7 +138,7 @@ export default function PartyLobbyPage() {
                   loading={readyMutation.isPending}
                 >
                   <CheckCircle2 size={14} />
-                  {myMembership?.is_ready ? 'Ready!' : 'Ready Up'}
+                  {myMembership?.is_ready ? t('lobby.ready') : t('lobby.readyUp')}
                 </Button>
 
                 {discordChannel ? (
@@ -147,7 +147,7 @@ export default function PartyLobbyPage() {
                     size="sm"
                     onClick={() => window.open(discordChannel.invite_url, '_blank')}
                   >
-                    <MessageSquare size={14} /> Join Discord
+                    <MessageSquare size={14} /> {t('lobby.joinDiscord')}
                   </Button>
                 ) : isLeader ? (
                   <Button
@@ -156,7 +156,7 @@ export default function PartyLobbyPage() {
                     onClick={() => createDiscordMutation.mutate()}
                     loading={createDiscordMutation.isPending}
                   >
-                    <MessageSquare size={14} /> Create Discord
+                    <MessageSquare size={14} /> {t('lobby.createDiscord')}
                   </Button>
                 ) : null}
 
@@ -164,10 +164,10 @@ export default function PartyLobbyPage() {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() => { if (confirm('Disband party?')) disbandMutation.mutate(); }}
+                    onClick={() => { if (confirm(t('lobby.disbandConfirm'))) disbandMutation.mutate(); }}
                     loading={disbandMutation.isPending}
                   >
-                    <Trash2 size={14} /> Delete
+                    <Trash2 size={14} /> {t('lobby.delete')}
                   </Button>
                 ) : (
                   <Button
@@ -176,18 +176,17 @@ export default function PartyLobbyPage() {
                     onClick={() => leaveMutation.mutate()}
                     loading={leaveMutation.isPending}
                   >
-                    <LogOut size={14} /> Leave
+                    <LogOut size={14} /> {t('lobby.leave')}
                   </Button>
                 )}
 
-                {/* Mobile chat toggle */}
                 <Button
                   variant="secondary"
                   size="sm"
                   className="lg:hidden"
                   onClick={() => setChatOpen(true)}
                 >
-                  <MessageSquare size={14} /> Chat
+                  <MessageSquare size={14} /> {t('lobby.chat')}
                 </Button>
               </div>
             )}
@@ -197,11 +196,11 @@ export default function PartyLobbyPage() {
           <div className="card p-4">
             <div className="flex items-center gap-2 mb-4">
               <h2 className="font-display text-lg font-semibold text-text-primary">
-                Members ({party.members.length}/{party.max_size})
+                {t('lobby.members')} ({party.members.length}/{party.max_size})
               </h2>
               {party.members.every((m) => m.is_ready) && party.members.length >= 2 && (
                 <span className="text-xs font-bold text-accent-success bg-accent-success/10 border border-accent-success/30 px-2 py-0.5 rounded-full">
-                  All Ready!
+                  {t('lobby.allReady')}
                 </span>
               )}
             </div>
@@ -219,13 +218,13 @@ export default function PartyLobbyPage() {
             </div>
           </div>
 
-          {/* Discord password — leader only */}
+          {/* Discord password */}
           {isLeader && discordChannel?.password && (
             <div className="card p-4 border border-accent-primary/20 bg-accent-primary/5">
               <div className="flex items-center gap-2 mb-2">
                 <MessageSquare size={14} className="text-accent-primary" />
-                <span className="text-sm font-semibold text-text-primary">Discord Channel Password</span>
-                <span className="text-xs text-text-muted">(only you can see this)</span>
+                <span className="text-sm font-semibold text-text-primary">{t('lobby.discordPassword')}</span>
+                <span className="text-xs text-text-muted">{t('lobby.onlyYouCanSee')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <code className="flex-1 px-3 py-2 rounded-lg bg-bg-elevated border border-bg-border text-accent-primary font-mono text-sm tracking-widest select-all">
@@ -234,26 +233,26 @@ export default function PartyLobbyPage() {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(discordChannel.password!);
-                    toast.success('Password copied!');
+                    toast.success(t('lobby.passwordCopied'));
                   }}
                   className="px-3 py-2 rounded-lg text-xs font-medium border border-bg-border text-text-secondary hover:text-text-primary hover:border-accent-primary/40 transition-colors"
                 >
-                  Copy
+                  {t('lobby.copy')}
                 </button>
               </div>
-              <p className="text-xs text-text-muted mt-2">Share this password with players you want to invite to the Discord channel.</p>
+              <p className="text-xs text-text-muted mt-2">{t('lobby.sharePassword')}</p>
             </div>
           )}
 
           {/* Party details */}
           <div className="card p-4 text-sm text-text-secondary">
             <p>
-              <span className="text-text-muted">Leader: </span>
+              <span className="text-text-muted">{t('lobby.leader')} </span>
               <span className="text-text-primary font-medium">{party.leader.username}</span>
               <Crown size={12} className="inline ml-1 text-accent-warning" />
             </p>
             <p className="mt-1">
-              <span className="text-text-muted">Status: </span>
+              <span className="text-text-muted">{t('lobby.status')} </span>
               <span className={`font-medium ${party.status === 'OPEN' ? 'text-accent-success' : 'text-accent-warning'}`}>
                 {party.status}
               </span>
@@ -273,7 +272,7 @@ export default function PartyLobbyPage() {
         {chatOpen && (
           <div className="lg:hidden absolute inset-0 z-50 flex flex-col bg-bg-secondary">
             <div className="flex items-center justify-between px-4 py-2 border-b border-bg-border">
-              <span className="font-display font-semibold text-text-primary">Party Chat</span>
+              <span className="font-display font-semibold text-text-primary">{t('lobby.partyChat')}</span>
               <button
                 onClick={() => setChatOpen(false)}
                 className="p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-bg-elevated transition-colors"

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Trash2, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import { playersApi } from '../api/players';
 import { gamesApi } from '../api/games';
@@ -31,6 +32,7 @@ const profileSchema = z.object({
 type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const { player, updatePlayer } = useAuthStore();
   const [addGameOpen, setAddGameOpen] = useState(false);
   const [selectedGameId, setSelectedGameId] = useState('');
@@ -60,9 +62,9 @@ export default function ProfilePage() {
     mutationFn: playersApi.updateMe,
     onSuccess: (updated) => {
       updatePlayer(updated);
-      toast.success('Profile saved!');
+      toast.success(t('profile.profileSaved'));
     },
-    onError: (err: any) => toast.error(err?.response?.data?.detail ?? 'Save failed'),
+    onError: (err: any) => toast.error(err?.response?.data?.detail ?? t('profile.saveFailed')),
   });
 
   const addGameMutation = useMutation({
@@ -70,18 +72,18 @@ export default function ProfilePage() {
     onSuccess: (updated) => {
       updatePlayer(updated);
       setAddGameOpen(false);
-      toast.success('Game added!');
+      toast.success(t('profile.gameAdded'));
     },
-    onError: (err: any) => toast.error(err?.response?.data?.detail ?? 'Failed to add game'),
+    onError: (err: any) => toast.error(err?.response?.data?.detail ?? t('profile.failedToAddGame')),
   });
 
   const removeGameMutation = useMutation({
     mutationFn: playersApi.removeGame,
     onSuccess: (updated) => {
       updatePlayer(updated);
-      toast.success('Game removed');
+      toast.success(t('profile.gameRemoved'));
     },
-    onError: () => toast.error('Failed to remove game'),
+    onError: () => toast.error(t('profile.failedToRemoveGame')),
   });
 
   const onSubmit = (data: ProfileForm) => {
@@ -103,7 +105,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-bg-primary">
       <Navbar />
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="font-display text-3xl font-bold text-text-primary mb-8">Your Profile</h1>
+        <h1 className="font-display text-3xl font-bold text-text-primary mb-8">{t('profile.yourProfile')}</h1>
 
         <div className="flex flex-col gap-6">
           {/* Avatar preview */}
@@ -111,55 +113,55 @@ export default function ProfilePage() {
             {player && <PlayerAvatar player={player} size={72} />}
             <div>
               <h2 className="font-display text-xl font-semibold text-text-primary">{player?.username}</h2>
-              <p className="text-text-secondary text-sm">Member since {new Date(player?.created_at ?? '').toLocaleDateString()}</p>
+              <p className="text-text-secondary text-sm">{t('profile.memberSince')} {new Date(player?.created_at ?? '').toLocaleDateString()}</p>
               {player && <SkillBadge skill={player.skill_level} size="md" />}
             </div>
           </div>
 
           {/* Edit form */}
           <form onSubmit={handleSubmit(onSubmit)} className="card p-6 flex flex-col gap-4">
-            <h3 className="font-display text-lg font-semibold text-text-primary">Edit Details</h3>
+            <h3 className="font-display text-lg font-semibold text-text-primary">{t('profile.editDetails')}</h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input label="Username" {...register('username')} error={errors.username?.message} />
-              <Input label="Avatar URL" placeholder="https://..." {...register('avatar_url')} />
+              <Input label={t('profile.username')} {...register('username')} error={errors.username?.message} />
+              <Input label={t('profile.avatarUrl')} placeholder="https://..." {...register('avatar_url')} />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-text-secondary">Bio</label>
+              <label className="text-sm font-medium text-text-secondary">{t('profile.bio')}</label>
               <textarea
                 {...register('bio')}
                 rows={3}
-                placeholder="Tell your squad about yourself…"
+                placeholder={t('profile.bioPlaceholder')}
                 className="w-full px-3 py-2 rounded-lg text-sm bg-bg-elevated border border-bg-border text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary resize-none"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-text-secondary">Skill Level</label>
+                <label className="text-sm font-medium text-text-secondary">{t('profile.skillLevel')}</label>
                 <select
                   {...register('skill_level')}
                   className="w-full px-3 py-2 rounded-lg text-sm bg-bg-elevated border border-bg-border text-text-primary focus:outline-none focus:border-accent-primary"
                 >
-                  {SKILLS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  {SKILLS.map((s) => <option key={s} value={s}>{t(`skill.${s}`)}</option>)}
                 </select>
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-text-secondary">Region</label>
+                <label className="text-sm font-medium text-text-secondary">{t('profile.region')}</label>
                 <select
                   {...register('region_id')}
                   className="w-full px-3 py-2 rounded-lg text-sm bg-bg-elevated border border-bg-border text-text-primary focus:outline-none focus:border-accent-primary"
                 >
-                  <option value="">Select region</option>
+                  <option value="">{t('profile.selectRegion')}</option>
                   {regions?.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
                 </select>
               </div>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-text-secondary">Country Code (e.g. IL, US)</label>
+              <label className="text-sm font-medium text-text-secondary">{t('profile.countryCode')}</label>
               <Input
                 placeholder="IL"
                 maxLength={2}
@@ -175,26 +177,26 @@ export default function ProfilePage() {
               disabled={!isDirty}
               className="self-start"
             >
-              Save Changes
+              {t('profile.saveChanges')}
             </Button>
           </form>
 
           {/* My Games */}
           <div className="card p-6 flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-display text-lg font-semibold text-text-primary">My Games</h3>
+              <h3 className="font-display text-lg font-semibold text-text-primary">{t('profile.myGames')}</h3>
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => setAddGameOpen(true)}
                 disabled={availableGames.length === 0}
               >
-                <Plus size={14} /> Add Game
+                <Plus size={14} /> {t('profile.addGame')}
               </Button>
             </div>
 
             {player?.player_games.length === 0 ? (
-              <p className="text-text-muted text-sm">No games added yet.</p>
+              <p className="text-text-muted text-sm">{t('profile.noGames')}</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {player?.player_games.map((pg) => (
@@ -217,22 +219,22 @@ export default function ProfilePage() {
         </div>
 
         {/* Add Game Modal */}
-        <Modal open={addGameOpen} onClose={() => setAddGameOpen(false)} title="Add a Game">
+        <Modal open={addGameOpen} onClose={() => setAddGameOpen(false)} title={t('profile.addAGame')}>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-text-secondary">Game</label>
+              <label className="text-sm font-medium text-text-secondary">{t('browse.game')}</label>
               <select
                 value={selectedGameId}
                 onChange={(e) => setSelectedGameId(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg text-sm bg-bg-elevated border border-bg-border text-text-primary focus:outline-none focus:border-accent-primary"
               >
-                <option value="">Select a game</option>
+                <option value="">{t('profile.selectGame')}</option>
                 {availableGames.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
               </select>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-text-secondary">Your Skill Level</label>
+              <label className="text-sm font-medium text-text-secondary">{t('profile.yourSkillLevel')}</label>
               <div className="flex flex-wrap gap-2">
                 {SKILLS.map((s) => (
                   <button
@@ -252,7 +254,7 @@ export default function ProfilePage() {
               disabled={!selectedGameId}
               onClick={() => addGameMutation.mutate({ game_id: selectedGameId, skill_level: selectedSkill })}
             >
-              Add Game
+              {t('profile.addGame')}
             </Button>
           </div>
         </Modal>

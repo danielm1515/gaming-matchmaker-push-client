@@ -1,4 +1,5 @@
 import { Wifi, WifiOff, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useChatStore } from '../../stores/chatStore';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
@@ -14,20 +15,21 @@ const STATUS_ICON = {
   disconnected: <WifiOff size={12} className="text-accent-danger" />,
 };
 
-const STATUS_LABEL = {
-  connected: 'Connected',
-  connecting: 'Connecting…',
-  disconnected: 'Disconnected',
-};
-
 export default function ChatPanel({ currentPlayerId, onSend }: ChatPanelProps) {
+  const { t } = useTranslation();
   const { messages, connectionStatus } = useChatStore();
+
+  const STATUS_LABEL = {
+    connected: t('chat.connected'),
+    connecting: t('chat.connecting'),
+    disconnected: t('chat.disconnected'),
+  };
 
   return (
     <div className="flex flex-col h-full bg-bg-secondary border-l border-bg-border">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-bg-border">
-        <span className="font-display font-semibold text-text-primary">Party Chat</span>
+        <span className="font-display font-semibold text-text-primary">{t('chat.partyChat')}</span>
         <div className="flex items-center gap-1.5 text-xs text-text-secondary">
           {STATUS_ICON[connectionStatus]}
           {STATUS_LABEL[connectionStatus]}

@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Zap, Users, Search, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import { playersApi } from '../api/players';
 import { partiesApi } from '../api/parties';
@@ -15,17 +16,21 @@ import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
 import type { AvailabilityStatus } from '../types/domain';
 
-const AVAILABILITY_OPTIONS: { value: AvailabilityStatus; label: string; color: string }[] = [
-  { value: 'ONLINE', label: 'Online', color: 'bg-green-400' },
-  { value: 'LOOKING_FOR_PARTY', label: 'Looking for Party', color: 'bg-accent-success' },
-  { value: 'IN_GAME', label: 'In Game', color: 'bg-accent-warning' },
-  { value: 'AWAY', label: 'Away', color: 'bg-yellow-600' },
-  { value: 'OFFLINE', label: 'Offline', color: 'bg-text-muted' },
-];
+const AVAILABILITY_KEYS: AvailabilityStatus[] = ['ONLINE', 'LOOKING_FOR_PARTY', 'IN_GAME', 'AWAY', 'OFFLINE'];
+
+const AVAILABILITY_COLORS: Record<AvailabilityStatus, string> = {
+  ONLINE: 'bg-green-400',
+  LOOKING_FOR_PARTY: 'bg-accent-success',
+  IN_GAME: 'bg-accent-warning',
+  AWAY: 'bg-yellow-600',
+  OFFLINE: 'bg-text-muted',
+};
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { player, updatePlayer } = useAuthStore();
   const navigate = useNavigate();
+
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const [matches, setMatches] = useState<any[]>([]);
   const [isFinding, setIsFinding] = useState(false);
@@ -46,37 +51,37 @@ export default function DashboardPage() {
       playersApi.updateMe({ availability }),
     onSuccess: (updated) => {
       updatePlayer(updated);
-      toast.success('Status updated');
+      toast.success(t('dashboard.statusUpdated'));
     },
   });
 
   const joinMutation = useMutation({
     mutationFn: partiesApi.joinParty,
     onSuccess: (party) => {
-      toast.success('Joined party!');
+      toast.success(t('dashboard.joinedParty'));
       navigate(`/parties/${party.id}`);
     },
-    onError: (err: any) => toast.error(err?.response?.data?.detail ?? 'Failed to join'),
+    onError: (err: any) => toast.error(err?.response?.data?.detail ?? t('dashboard.failedToJoin')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => partiesApi.disbandParty(id),
     onSuccess: (_data, id) => {
-      toast.success('Party deleted');
+      toast.success(t('dashboard.partyDeleted'));
       setMatches((prev) => prev.filter((r) => r.party.id !== id));
     },
-    onError: (err: any) => toast.error(err?.response?.data?.detail ?? 'Failed to delete party'),
+    onError: (err: any) => toast.error(err?.response?.data?.detail ?? t('dashboard.failedToDelete')),
   });
 
   const handleFindMatch = async () => {
-    if (!selectedGameId) { toast.error('Select a game first'); return; }
+    if (!selectedGameId) { toast.error(t('dashboard.selectGameFirst')); return; }
     setIsFinding(true);
     try {
       const results = await matchingApi.findMatches(selectedGameId, 2, 6);
       setMatches(results);
-      if (!results.length) toast('No matches found. Try a different game or region.', { icon: '🔍' });
+      if (!results.length) toast(t('dashboard.noMatches'), { icon: '🔍' });
     } catch {
-      toast.error('Failed to find matches');
+      toast.error(t('dashboard.findMatchFailed'));
     } finally {
       setIsFinding(false);
     }
@@ -90,20 +95,20 @@ export default function DashboardPage() {
         {/* Status bar */}
         <div className="card p-4 flex flex-col sm:flex-row sm:items-center gap-4">
           <div>
-            <p className="text-sm text-text-secondary mb-2">Your status</p>
+            <p className="text-sm text-text-secondary mb-2">{t('dashboard.yourStatus')}</p>
             <div className="flex flex-wrap gap-2">
-              {AVAILABILITY_OPTIONS.map((opt) => (
+              {AVAILABILITY_KEYS.map((value) => (
                 <button
-                  key={opt.value}
-                  onClick={() => availabilityMutation.mutate(opt.value)}
+                  key={value}
+                  onClick={() => availabilityMutation.mutate(value)}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm border transition-all ${
-                    player?.availability === opt.value
+                    player?.availability === value
                       ? 'border-accent-primary/50 bg-accent-primary/10 text-text-primary'
                       : 'border-bg-border text-text-secondary hover:border-accent-primary/30'
                   }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${opt.color}`} />
-                  {opt.label}
+                  <span className={`w-2 h-2 rounded-full ${AVAILABILITY_COLORS[value]}`} />
+                  {t(`availability.${value}`)}
                 </button>
               ))}
             </div>
@@ -114,10 +119,10 @@ export default function DashboardPage() {
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Zap size={18} className="text-accent-primary" />
-            <h2 className="font-display text-xl font-semibold text-text-primary">Quick Match</h2>
+            <h2 className="font-display text-xl font-semibold text-text-primary">{t('dashboard.quickMatch')}</h2>
           </div>
           <div className="card p-4 flex flex-col gap-4">
-            <GameSelector value={selectedGameId} onChange={setSelectedGameId} placeholder="Pick a game…" />
+            <GameSelector value={selectedGameId} onChange={setSelectedGameId} placeholder={t('dashboard.pickGame')} />
             <Button
               variant="primary"
               size="md"
@@ -126,7 +131,7 @@ export default function DashboardPage() {
               disabled={!selectedGameId}
               className="self-start"
             >
-              <Zap size={15} /> Find Party
+              <Zap size={15} /> {t('dashboard.findParty')}
             </Button>
 
             {matches.length > 0 && (
@@ -154,14 +159,14 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2">
               <Users size={18} className="text-accent-secondary" />
               <h2 className="font-display text-xl font-semibold text-text-primary">
-                Players Near You
+                {t('dashboard.playersNearYou')}
               </h2>
             </div>
             <button
               onClick={() => navigate('/browse')}
               className="flex items-center gap-1 text-sm text-accent-primary hover:underline"
             >
-              See all <ChevronRight size={14} />
+              {t('dashboard.seeAll')} <ChevronRight size={14} />
             </button>
           </div>
 
@@ -176,7 +181,7 @@ export default function DashboardPage() {
           ) : (
             <div className="card p-8 text-center text-text-muted">
               <Search size={32} className="mx-auto mb-3 opacity-40" />
-              <p>No players found near you. Set your region in your profile.</p>
+              <p>{t('dashboard.noPlayersNearby')}</p>
             </div>
           )}
         </section>

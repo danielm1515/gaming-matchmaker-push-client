@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Gamepad2, MapPin, MessageSquare, Users, Zap, Shield, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import Button from '../components/ui/Button';
 
 const GAMES = [
@@ -10,53 +11,60 @@ const GAMES = [
   'League of Legends', 'Overwatch 2', 'CS2', 'Rocket League',
 ];
 
-const FEATURES = [
-  {
-    icon: <MapPin size={28} className="text-accent-primary" />,
-    title: 'Region Matching',
-    desc: 'Find teammates in your area — Israel, EU, NA, APAC and more. Low ping, same timezone.',
-    color: 'from-accent-primary/20 to-transparent',
-  },
-  {
-    icon: <MessageSquare size={28} className="text-accent-secondary" />,
-    title: 'Real-time Chat',
-    desc: 'Talk to your party the moment you match. WebSocket-powered instant messaging.',
-    color: 'from-accent-secondary/20 to-transparent',
-  },
-  {
-    icon: <Users size={28} className="text-accent-success" />,
-    title: 'Smart Parties',
-    desc: 'Create or join parties filtered by game, skill level, and region. No bad matches.',
-    color: 'from-accent-success/20 to-transparent',
-  },
-  {
-    icon: <Zap size={28} className="text-accent-warning" />,
-    title: 'Quick Match',
-    desc: 'One click to find the best open party based on your region, skill, and game.',
-    color: 'from-accent-warning/20 to-transparent',
-  },
-  {
-    icon: <Shield size={28} className="text-purple-400" />,
-    title: 'Skill Gating',
-    desc: 'Party leaders set minimum and maximum skill tiers so you play with your level.',
-    color: 'from-purple-500/20 to-transparent',
-  },
-  {
-    icon: <Globe size={28} className="text-pink-400" />,
-    title: 'Multi-Game',
-    desc: 'Warzone, Apex, Valorant, CS2 and more — all in one platform.',
-    color: 'from-pink-500/20 to-transparent',
-  },
-];
-
-const STATS = [
-  { value: '8+', label: 'Games Supported' },
-  { value: '10', label: 'Global Regions' },
-  { value: '<50ms', label: 'Chat Latency' },
-  { value: '∞', label: 'Free Forever' },
-];
-
 export default function LandingPage() {
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const next = i18n.language === 'he' ? 'en' : 'he';
+    i18n.changeLanguage(next);
+  };
+
+  const FEATURES = [
+    {
+      icon: <MapPin size={28} className="text-accent-primary" />,
+      title: t('landing.regionMatching'),
+      desc: t('landing.regionMatchingDesc'),
+      color: 'from-accent-primary/20 to-transparent',
+    },
+    {
+      icon: <MessageSquare size={28} className="text-accent-secondary" />,
+      title: t('landing.realtimeChat'),
+      desc: t('landing.realtimeChatDesc'),
+      color: 'from-accent-secondary/20 to-transparent',
+    },
+    {
+      icon: <Users size={28} className="text-accent-success" />,
+      title: t('landing.smartParties'),
+      desc: t('landing.smartPartiesDesc'),
+      color: 'from-accent-success/20 to-transparent',
+    },
+    {
+      icon: <Zap size={28} className="text-accent-warning" />,
+      title: t('landing.quickMatch'),
+      desc: t('landing.quickMatchDesc'),
+      color: 'from-accent-warning/20 to-transparent',
+    },
+    {
+      icon: <Shield size={28} className="text-purple-400" />,
+      title: t('landing.skillGating'),
+      desc: t('landing.skillGatingDesc'),
+      color: 'from-purple-500/20 to-transparent',
+    },
+    {
+      icon: <Globe size={28} className="text-pink-400" />,
+      title: t('landing.multiGame'),
+      desc: t('landing.multiGameDesc'),
+      color: 'from-pink-500/20 to-transparent',
+    },
+  ];
+
+  const STATS = [
+    { value: '8+', label: t('landing.gamesSupported') },
+    { value: '10', label: t('landing.globalRegions') },
+    { value: '<50ms', label: t('landing.chatLatency') },
+    { value: '∞', label: t('landing.freeForever') },
+  ];
+
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary overflow-x-hidden">
       {/* Navbar */}
@@ -64,14 +72,21 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2 font-display text-xl font-bold text-gradient">
             <Gamepad2 size={22} className="text-accent-primary" />
-            SquadUp
+            {t('brand')}
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleLanguage}
+              className="p-1.5 text-text-muted hover:text-accent-primary transition-colors rounded-lg hover:bg-bg-elevated text-xs font-semibold flex items-center gap-1"
+            >
+              <Globe size={14} />
+              {i18n.language === 'he' ? 'EN' : 'עב'}
+            </button>
             <Link to="/auth">
-              <Button variant="ghost" size="sm">Login</Button>
+              <Button variant="ghost" size="sm">{t('landing.login')}</Button>
             </Link>
             <Link to="/auth">
-              <Button variant="primary" size="sm">Get Started</Button>
+              <Button variant="primary" size="sm">{t('landing.getStarted')}</Button>
             </Link>
           </div>
         </div>
@@ -79,7 +94,6 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative min-h-screen flex items-center justify-center pt-14">
-        {/* Animated BG */}
         <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-20 pointer-events-none" />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-primary/8 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-accent-secondary/6 rounded-full blur-[80px] pointer-events-none" />
@@ -92,37 +106,35 @@ export default function LandingPage() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-primary/10 border border-accent-primary/30 text-accent-primary text-sm font-medium mb-6">
               <Zap size={13} className="fill-accent-primary" />
-              Now supporting 8 games across 10 regions
+              {t('landing.badge')}
             </div>
 
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-              Find Your{' '}
-              <span className="text-gradient">Squad.</span>
+              {t('landing.heroTitle1')}{' '}
+              <span className="text-gradient">{t('landing.heroTitle2')}</span>
               <br />
-              Dominate Together.
+              {t('landing.heroTitle3')}
             </h1>
 
             <p className="text-text-secondary text-lg sm:text-xl max-w-2xl mx-auto mb-10">
-              Match with teammates in your region, join open parties, chat in real-time, and dominate
-              ranked together. Cross-game LFG built for serious players.
+              {t('landing.heroDesc')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/auth">
                 <Button variant="primary" size="lg" className="text-base px-8 shadow-glow animate-pulse-glow">
-                  <Zap size={18} /> Get Started Free
+                  <Zap size={18} /> {t('landing.getStartedFree')}
                 </Button>
               </Link>
               <Link to="/auth">
                 <Button variant="secondary" size="lg" className="text-base px-8">
-                  <Users size={18} /> Browse Players
+                  <Users size={18} /> {t('landing.browsePlayers')}
                 </Button>
               </Link>
             </div>
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-text-muted animate-float">
           <div className="w-5 h-8 rounded-full border-2 border-text-muted flex items-start justify-center pt-1.5">
             <div className="w-1 h-2 bg-text-muted rounded-full animate-bounce" />
@@ -174,10 +186,10 @@ export default function LandingPage() {
             className="text-center mb-12"
           >
             <h2 className="font-display text-4xl font-bold text-text-primary mb-4">
-              Everything your squad needs
+              {t('landing.featuresTitle')}
             </h2>
             <p className="text-text-secondary text-lg max-w-2xl mx-auto">
-              Built by gamers, for gamers. Find your teammates faster and focus on what matters — winning.
+              {t('landing.featuresDesc')}
             </p>
           </motion.div>
 
@@ -214,14 +226,14 @@ export default function LandingPage() {
           className="relative z-10 max-w-2xl mx-auto"
         >
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-text-primary mb-6">
-            Ready to find your squad?
+            {t('landing.ctaTitle')}
           </h2>
           <p className="text-text-secondary text-lg mb-8">
-            Join thousands of players already matching, chatting, and winning together.
+            {t('landing.ctaDesc')}
           </p>
           <Link to="/auth">
             <Button variant="primary" size="lg" className="text-base px-10 shadow-glow">
-              <Zap size={18} /> Start Playing
+              <Zap size={18} /> {t('landing.startPlaying')}
             </Button>
           </Link>
         </motion.div>
@@ -231,9 +243,9 @@ export default function LandingPage() {
       <footer className="border-t border-bg-border py-8 px-4 text-center text-text-muted text-sm">
         <div className="flex items-center justify-center gap-2 font-display text-lg font-bold text-gradient mb-2">
           <Gamepad2 size={18} className="text-accent-primary" />
-          SquadUp
+          {t('brand')}
         </div>
-        <p>Find your squad. Dominate together. © {new Date().getFullYear()}</p>
+        <p>{t('landing.footer')} © {new Date().getFullYear()}</p>
       </footer>
     </div>
   );
